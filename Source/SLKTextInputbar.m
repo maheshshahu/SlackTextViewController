@@ -14,6 +14,12 @@
 #import "UIView+SLKAdditions.h"
 
 #import "SLKUIConstants.h"
+#import "NSString+Emoji.h"
+
+#define MAXLENGTHOFRSMS 160
+#define MAXLENGTHOFMSMS  153
+#define MAXLENGTHOFRUNISMS 70
+#define MAXLENGTHOFMUNISMS  67
 
 NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMoveNotification";
 
@@ -33,6 +39,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 @property (nonatomic, strong) NSArray *charCountLabelVCs;
 
 @property (nonatomic, strong) UILabel *charCountLabel;
+@property (nonatomic, strong) UILabel *smsCountLabel;
 
 @property (nonatomic) CGPoint previousOrigin;
 
@@ -93,6 +100,7 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     [self addSubview:self.rightButton];
     [self addSubview:self.textView];
     [self addSubview:self.charCountLabel];
+    [self addSubview:self.smsCountLabel];
     [self addSubview:self.contentView];
 
     [self slk_setupViewConstraints];
@@ -294,6 +302,19 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     return _charCountLabel;
 }
 
+- (UILabel *)smsCountLabel
+{
+    if (!_smsCountLabel) {
+        _smsCountLabel = [UILabel new];
+        _smsCountLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        _smsCountLabel.backgroundColor = [UIColor clearColor];
+        _smsCountLabel.textAlignment = NSTextAlignmentRight;
+        _smsCountLabel.font = [UIFont systemFontOfSize:11.0];
+        _smsCountLabel.hidden = NO;
+    }
+    return _smsCountLabel;
+}
+
 - (BOOL)isHidden
 {
     return _hidden;
@@ -302,6 +323,9 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
 - (CGFloat)minimumInputbarHeight
 {
     CGFloat minimumHeight = self.textView.intrinsicContentSize.height;
+    if(!self.smsCountLabel.hidden){
+        minimumHeight += self.smsCountLabel.frame.size.height + self.contentInset.bottom;
+    }
     minimumHeight += self.contentInset.top;
     minimumHeight += self.slk_bottomMargin;
     
@@ -581,6 +605,54 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     self.charCountLabel.textColor = [self limitExceeded] ? self.charCountLabelWarningColor : self.charCountLabelNormalColor;
 }
 
+#pragma mark - SMS Counter
+- (void)slk_updateSMSCounter
+{
+    NSString *text = [self.textView.text stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    NSString *counter = nil;
+    int smsCounter = 0;
+    
+    int length = [text lengthOfSMS];
+    NSString *type = @"GSM";
+    int maxLengthOfSMS ;
+    if(length > 0){
+        if([text stringContainsEmoji]){
+            maxLengthOfSMS = MAXLENGTHOFRUNISMS;
+            smsCounter = (int) length/maxLengthOfSMS;
+            if(length % maxLengthOfSMS != 0){
+                smsCounter = smsCounter + 1;
+            }
+            if (smsCounter > 1) {
+                maxLengthOfSMS = MAXLENGTHOFMUNISMS;
+                smsCounter = (int) length/maxLengthOfSMS;
+                if(length % maxLengthOfSMS != 0){
+                    smsCounter = smsCounter + 1;
+                }
+            }
+            type = NSLocalizedString(@"UNI", nil);
+            
+        }else {
+            maxLengthOfSMS = MAXLENGTHOFRSMS;
+            
+            smsCounter = (int) length/maxLengthOfSMS;
+            if(length % maxLengthOfSMS != 0){
+                smsCounter = smsCounter + 1;
+            }
+            if (smsCounter > 1) {
+                maxLengthOfSMS = MAXLENGTHOFMSMS;
+                smsCounter = (int) length/maxLengthOfSMS;
+                if(length % maxLengthOfSMS != 0){
+                    smsCounter = smsCounter + 1;
+                }
+            }
+            type = NSLocalizedString(@"GSM", nil);
+        }
+    }
+    counter = [NSString stringWithFormat:@"%d SMS %@,%lu/%ld",smsCounter,type,(unsigned long)length, (long)self.maxCharCount-length];
+
+    self.smsCountLabel.text = counter;
+    self.smsCountLabel.textColor = [self limitExceeded] ? self.charCountLabelWarningColor : self.charCountLabelNormalColor;
+}
 
 #pragma mark - Notification Events
 
@@ -594,8 +666,13 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
     }
     
     // Updates the char counter label
-    if (self.maxCharCount > 0) {
+    if (self.maxCharCount > 0 && self.smsCountLabel.hidden) {
         [self slk_updateCounter];
+    }
+    
+    // Updates the char counter label
+    if (self.maxCharCount > 0) {
+        [self slk_updateSMSCounter];
     }
     
     if (self.autoHideRightButton && !self.isEditing)
@@ -651,22 +728,31 @@ NSString * const SLKTextInputbarDidMoveNotification =   @"SLKTextInputbarDidMove
                             @"rightButton": self.rightButton,
                             @"editorContentView": self.editorContentView,
                             @"charCountLabel": self.charCountLabel,
+                            @"smsCountLabel": self.smsCountLabel,
                             @"contentView": self.contentView,
                             };
     
     NSDictionary *metrics = @{@"top" : @(self.contentInset.top),
                               @"left" : @(self.contentInset.left),
                               @"right" : @(self.contentInset.right),
+                              @"bottom" : @(self.contentInset.bottom),
                               };
     
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left)-[leftButton(0)]-(<=left)-[textView]-(right)-[rightButton(0)]-(right)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[leftButton(0)]-(0@750)-|" options:0 metrics:metrics views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[rightButton]-(<=0)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-(left@250)-[charCountLabel(<=50@1000)]-(right@750)-|" options:0 metrics:metrics views:views]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[editorContentView(0)]-(<=top)-[textView(0@999)]-(0)-|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[editorContentView]|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[contentView]|" options:0 metrics:metrics views:views]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[contentView(0)]|" options:0 metrics:metrics views:views]];
+    
+    if(!self.smsCountLabel.hidden){
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[rightButton]-(<=0@750)-|" options:0 metrics:metrics views:views]];
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[smsCountLabel]-|" options:0 metrics:metrics views:views]];
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[editorContentView(0)]-(<=top)-[textView(0@999)]-(<=bottom)-[smsCountLabel(15)]-(<=bottom)-|" options:0 metrics:metrics views:views]];
+    }else {
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[rightButton]-(<=0)-|" options:0 metrics:metrics views:views]];
+        [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[editorContentView(0)]-(<=top)-[textView(0@999)]-(0)-|" options:0 metrics:metrics views:views]];
+    }
 
     self.textViewBottomMarginC = [self slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self secondItem:self.textView];
     self.editorContentViewHC = [self slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.editorContentView secondItem:nil];

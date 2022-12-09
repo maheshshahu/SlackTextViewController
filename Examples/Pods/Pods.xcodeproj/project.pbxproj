@@ -11,6 +11,11 @@
 		1D87BAF6807A6F24656CE3C6E0A3D691 /* SLKTypingIndicatorView.h in Headers */ = {isa = PBXBuildFile; fileRef = E76EC386EBA8E2BD0919F33C32DBFB41 /* SLKTypingIndicatorView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2A6186F8AE6C5CD2767949046F017961 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E4E89230EF59BC255123B67864ACF77 /* Foundation.framework */; };
 		3B67741D6C7B5D4C5B8AFCC351C7F424 /* UIResponder+SLKAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = FD3CEB520ABAE633DB696CD533769677 /* UIResponder+SLKAdditions.m */; };
+		3D81BBF22940A84000F0C68C /* NSString+Emoji.h in Headers */ = {isa = PBXBuildFile; fileRef = 3D81BBF02940A84000F0C68C /* NSString+Emoji.h */; };
+		3D81BBF32940A84000F0C68C /* NSString+Emoji.h in Headers */ = {isa = PBXBuildFile; fileRef = 3D81BBF02940A84000F0C68C /* NSString+Emoji.h */; };
+		3D81BBF42940A84000F0C68C /* NSString+Emoji.m in Sources */ = {isa = PBXBuildFile; fileRef = 3D81BBF12940A84000F0C68C /* NSString+Emoji.m */; };
+		3D81BBF52940A84000F0C68C /* NSString+Emoji.m in Sources */ = {isa = PBXBuildFile; fileRef = 3D81BBF12940A84000F0C68C /* NSString+Emoji.m */; };
+		3D81BBF62940A84000F0C68C /* NSString+Emoji.m in Sources */ = {isa = PBXBuildFile; fileRef = 3D81BBF12940A84000F0C68C /* NSString+Emoji.m */; };
 		4D4CD125276CAEF26B7E6433C1E9A458 /* SLKTextViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = C31B9359538DB1818FDCE030CB4C1695 /* SLKTextViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		52855809CE7672258D6707D8EB1DA870 /* SLKTypingIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = EC2BA9C4B342C46DFB060C7EDAC0D02E /* SLKTypingIndicatorView.m */; };
 		5541B1417BA993425E1B015992908C54 /* LoremIpsum.h in Headers */ = {isa = PBXBuildFile; fileRef = D8BC2A9F3D2387D410A5C3C03BDA3E17 /* LoremIpsum.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -68,6 +73,8 @@
 		2D326C0E925F5D55D604E945A6B1FF33 /* libLoremIpsum.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libLoremIpsum.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		37DB56D75062CC75FCB0966E1C6E8A8E /* Pods-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-acknowledgements.markdown"; sourceTree = "<group>"; };
 		38F8DCFB48A21AEC554454EBCAA8F121 /* UIResponder+SLKAdditions.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "UIResponder+SLKAdditions.h"; sourceTree = "<group>"; };
+		3D81BBF02940A84000F0C68C /* NSString+Emoji.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+Emoji.h"; sourceTree = "<group>"; };
+		3D81BBF12940A84000F0C68C /* NSString+Emoji.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSString+Emoji.m"; sourceTree = "<group>"; };
 		3E4E89230EF59BC255123B67864ACF77 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		3FEDBEE9200697C2E3510ACDDC12CCB7 /* LoremIpsum.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = LoremIpsum.xcconfig; sourceTree = "<group>"; };
 		4CADA432C548A9883246BF013F60DAA5 /* SLKTextInputbar.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = SLKTextInputbar.h; sourceTree = "<group>"; };
@@ -223,6 +230,8 @@
 				C41834960415015B9F61AFB584936219 /* UIScrollView+SLKAdditions.m */,
 				C8AA8BA4CD934D5702F4394F583323E3 /* UIView+SLKAdditions.h */,
 				904A23980152CBAEEEF9D965427462DD /* UIView+SLKAdditions.m */,
+				3D81BBF02940A84000F0C68C /* NSString+Emoji.h */,
+				3D81BBF12940A84000F0C68C /* NSString+Emoji.m */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -285,6 +294,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5541B1417BA993425E1B015992908C54 /* LoremIpsum.h in Headers */,
+				3D81BBF22940A84000F0C68C /* NSString+Emoji.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,6 +304,7 @@
 			files = (
 				A4C9630F12E4A6AD3E9F415BE6E928B0 /* SLKInputAccessoryView.h in Headers */,
 				CBB76607675EDA4E780C54D98CC5DF8F /* SLKTextInput.h in Headers */,
+				3D81BBF32940A84000F0C68C /* NSString+Emoji.h in Headers */,
 				97942BFE0D2C0ACA0A69DEC48BC044B8 /* SLKTextInputbar.h in Headers */,
 				6C4AEEA57727B3B3D79FEBD64B156BF7 /* SLKTextView+SLKAdditions.h in Headers */,
 				C875A458E52C3F05A2726D025A6CAA43 /* SLKTextView.h in Headers */,
@@ -376,6 +387,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 7DB346D0F39D3F0E887471402A8071AB;
@@ -396,6 +408,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB5DE846FF718133D67729717C4C6CC9 /* LoremIpsum-dummy.m in Sources */,
+				3D81BBF42940A84000F0C68C /* NSString+Emoji.m in Sources */,
 				89D3F183FA5B8BA60E82030FBA24D1E1 /* LoremIpsum.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -414,6 +427,7 @@
 				52855809CE7672258D6707D8EB1DA870 /* SLKTypingIndicatorView.m in Sources */,
 				3B67741D6C7B5D4C5B8AFCC351C7F424 /* UIResponder+SLKAdditions.m in Sources */,
 				DA9CF5D6ED28E84CC33F5EFF2D97F915 /* UIScrollView+SLKAdditions.m in Sources */,
+				3D81BBF62940A84000F0C68C /* NSString+Emoji.m in Sources */,
 				E9015CEB577B281532777C0D97D80FA1 /* UIView+SLKAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -422,6 +436,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3D81BBF52940A84000F0C68C /* NSString+Emoji.m in Sources */,
 				62F2C6DA240FB3A9602CA0046869AAF2 /* Pods-dummy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
