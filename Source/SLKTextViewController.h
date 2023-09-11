@@ -14,6 +14,9 @@
 #import "SLKTypingIndicatorView.h"
 #import "SLKTypingIndicatorProtocol.h"
 
+
+#import "SLKQuickResponseProtocol.h"
+
 #import "SLKTextView+SLKAdditions.h"
 #import "UIScrollView+SLKAdditions.h"
 #import "UIView+SLKAdditions.h"
@@ -70,6 +73,13 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
  To interact with it directly, you will need to cast the return value of -typingIndicatorProxyView to the appropriate type.
  */
 @property (nonatomic, readonly) UIView <SLKTypingIndicatorProtocol> *typingIndicatorProxyView;
+
+/**
+ The custom quick response view..
+ To customize the quick response view, you will need to call -registerClassForQuickResponseView: nside of any initialization method.
+ To interact with it directly, you will need to cast the return value of -quickResponseProxyView to the appropriate type.
+ */
+@property (nonatomic, readonly) UIView <SLKQuickResponseProtocol> *quickResponseProxyView;
 
 /** A single tap gesture used to dismiss the keyboard. SLKTextViewController is its delegate. */
 @property (nonatomic, readonly) UIGestureRecognizer *singleTapGesture;
@@ -307,6 +317,15 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
  @return YES if the typing indicator view should be presented.
  */
 - (BOOL)canShowTypingIndicator;
+
+/**
+ Verifies that the quick response view should be shown.
+ You can override this method to perform additional tasks.
+ You SHOULD call super to inherit some conditionals.
+ 
+ @return YES if the quick response  view should be presented.
+ */
+- (BOOL)canShowQuickResponse;
 
 /**
  Notifies the view controller when the user has shaked the device for undoing text typing.
@@ -577,6 +596,15 @@ NS_CLASS_AVAILABLE_IOS(7_0) @interface SLKTextViewController : UIViewController 
  @param aClass A UIView subclass conforming to the SLKTypingIndicatorProtocol.
  */
 - (void)registerClassForTypingIndicatorView:(Class _Nullable)aClass;
+
+/**
+ Registers a class for customizing the behavior and appearance of the quickResponse view.
+ You need to call this method inside of any initialization method.
+ Make sure to conform to SLKQuickResponseProtocol and implement the required methods.
+ 
+ @param aClass A UIView subclass conforming to the SLKQuickResponseProtocol.
+ */
+- (void)registerClassForQuickResponseView:(Class _Nullable)aClass;
 
 
 #pragma mark - Delegate Methods Requiring Super

@@ -1,11 +1,12 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
 workspace 'Messenger.xcworkspace'
-platform :ios, '7.0'
+platform :ios, '12.0'
 
 def shared_pods
     pod 'SlackTextViewController', :path => '../SlackTextViewController.podspec'
-      pod 'LoremIpsum', '~> 1.0'
+    pod 'LoremIpsum'
+    pod 'TTGTagCollectionView'
 end
 
 target 'Messenger-Programatic' do

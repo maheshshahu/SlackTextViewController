@@ -128,6 +128,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** The label used to display the character counts. */
 @property (nonatomic, readonly) UILabel *charCountLabel;
 
+/** The label used to display the sms  fragment counts. */
+@property (nonatomic, readonly) UILabel *smsCountLabel;
+
 /** The maximum character count allowed. If larger than 0, a character count label will be displayed on top of the right button. Default is 0, which means limitless.*/
 @property (nonatomic, readwrite) NSUInteger maxCharCount;
 

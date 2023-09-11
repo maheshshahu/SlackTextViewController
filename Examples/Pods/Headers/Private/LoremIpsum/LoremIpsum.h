@@ -1,1 +1,1 @@
-../../../LoremIpsum/LoremIpsum/LoremIpsum.h
+../../../LoremIpsum/Sources/LoremIpsum/include/LoremIpsum.h

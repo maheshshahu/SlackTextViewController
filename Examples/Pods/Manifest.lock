@@ -1,17 +1,27 @@
 PODS:
-  - LoremIpsum (1.0.0)
-  - SlackTextViewController (1.9.1)
+  - LoremIpsum (2.0.0)
+  - SlackTextViewController (1.9)
+  - TTGTagCollectionView (2.4.2)
 
 DEPENDENCIES:
-  - LoremIpsum (~> 1.0)
+  - LoremIpsum
   - SlackTextViewController (from `../SlackTextViewController.podspec`)
+  - TTGTagCollectionView
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - LoremIpsum
+    - TTGTagCollectionView
 
 EXTERNAL SOURCES:
   SlackTextViewController:
     :path: "../SlackTextViewController.podspec"
 
 SPEC CHECKSUMS:
-  LoremIpsum: 9029c55d36501b2ee0b05cc9ecda11d3a0479160
-  SlackTextViewController: 01dafb1bffa45ff4b03fceebb3eed524a8c02370
+  LoremIpsum: 25837e6f8f9c63471c23140be3e4c6e1b6743c9e
+  SlackTextViewController: 2784c7bc71ed9465bcdd5343336d079a546e2bcf
+  TTGTagCollectionView: 0d4625aaf7ee3ad755c39d549368a4ce69bd17d1
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: 3bd054dc71e8a07d72d6bf836953b52ac66c2f96
+
+COCOAPODS: 1.12.1

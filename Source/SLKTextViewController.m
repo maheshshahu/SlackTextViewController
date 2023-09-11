@@ -40,6 +40,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 @property (nonatomic, strong) NSLayoutConstraint *scrollViewHC;
 @property (nonatomic, strong) NSLayoutConstraint *textInputbarHC;
 @property (nonatomic, strong) NSLayoutConstraint *typingIndicatorViewHC;
+@property (nonatomic, strong) NSLayoutConstraint *quickResponseViewHC;
 @property (nonatomic, strong) NSLayoutConstraint *autoCompletionViewHC;
 @property (nonatomic, strong) NSLayoutConstraint *keyboardHC;
 
@@ -55,6 +56,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 // Optional classes to be used instead of the default ones.
 @property (nonatomic, strong) Class textViewClass;
 @property (nonatomic, strong) Class typingIndicatorViewClass;
+@property (nonatomic, strong) Class quickResponseViewClass;
 
 @end
 
@@ -63,6 +65,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 @synthesize collectionView = _collectionView;
 @synthesize scrollView = _scrollView;
 @synthesize typingIndicatorProxyView = _typingIndicatorProxyView;
+@synthesize quickResponseProxyView = _quickResponseProxyView;
 @synthesize textInputbar = _textInputbar;
 @synthesize autoCompletionView = _autoCompletionView;
 @synthesize autoCompleting = _autoCompleting;
@@ -175,6 +178,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     [self.view addSubview:self.scrollViewProxy];
     [self.view addSubview:self.autoCompletionView];
     [self.view addSubview:self.typingIndicatorProxyView];
+    [self.view addSubview:self.quickResponseProxyView];
     [self.view addSubview:self.textInputbar];
     
     [self slk_setupViewConstraints];
@@ -355,6 +359,22 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     return nil;
 }
 
+
+
+- (UIView <SLKQuickResponseProtocol> *)quickResponseProxyView
+{
+    if (!_quickResponseProxyView) {
+        Class class = self.quickResponseViewClass; //? : [SLKQuickResponseView class];
+
+        _quickResponseProxyView = [[class alloc] init];
+        _quickResponseProxyView.translatesAutoresizingMaskIntoConstraints = NO;
+        _quickResponseProxyView.hidden = YES;
+
+        [_quickResponseProxyView addObserver:self forKeyPath:@"visible" options:NSKeyValueObservingOptionNew context:nil];
+    }
+    return _quickResponseProxyView;
+}
+
 - (BOOL)isPresentedInPopover
 {
     return _presentedInPopover && SLK_IS_IPAD;
@@ -453,6 +473,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     scrollViewHeight -= self.textInputbarHC.constant;
     scrollViewHeight -= self.autoCompletionViewHC.constant;
     scrollViewHeight -= self.typingIndicatorViewHC.constant;
+    scrollViewHeight -= self.quickResponseViewHC.constant;
     
     if (scrollViewHeight < 0) return 0;
     else return scrollViewHeight;
@@ -828,6 +849,16 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 }
 
 - (BOOL)canShowTypingIndicator
+{
+    // Don't show if the text is being edited or auto-completed.
+    if (_textInputbar.isEditing || self.isAutoCompleting) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (BOOL)canShowQuickResponse
 {
     // Don't show if the text is being edited or auto-completed.
     if (_textInputbar.isEditing || self.isAutoCompleting) {
@@ -1631,6 +1662,33 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
                                         }];
 }
 
+- (void)slk_willShowOrHideQuickResponseView:(UIView <SLKQuickResponseProtocol> *)view
+{
+    // Skips if the typing indicator should not show. Ignores the checking if it's trying to hide.
+    if (![self canShowQuickResponse] && view.isVisible) {
+        return;
+    }
+    
+    CGFloat systemLayoutSizeHeight = [view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height;
+    CGFloat height = view.isVisible ? systemLayoutSizeHeight : 0.0;
+    
+    self.quickResponseViewHC.constant = height;
+    self.scrollViewHC.constant -= height;
+    
+    if (view.isVisible) {
+        view.hidden = NO;
+    }
+    
+    [self.view slk_animateLayoutIfNeededWithBounce:self.bounces
+                                           options:UIViewAnimationOptionCurveEaseInOut
+                                        animations:NULL
+                                        completion:^(BOOL finished) {
+                                            if (!view.isVisible) {
+                                                view.hidden = YES;
+                                            }
+                                        }];
+}
+
 
 #pragma mark - KVO Events
 
@@ -1638,6 +1696,8 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
 {
     if ([object conformsToProtocol:@protocol(SLKTypingIndicatorProtocol)] && [keyPath isEqualToString:@"visible"]) {
         [self slk_willShowOrHideTypeIndicatorView:object];
+    }else if ([object conformsToProtocol:@protocol(SLKQuickResponseProtocol)] && [keyPath isEqualToString:@"visible"]) {
+        [self slk_willShowOrHideQuickResponseView:object];
     }
     else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
@@ -1987,6 +2047,16 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     self.typingIndicatorViewClass = aClass;
 }
 
+- (void)registerClassForQuickResponseView:(Class)aClass
+{
+    if (aClass == nil) {
+        return;
+    }
+
+    NSAssert([aClass isSubclassOfClass:[UIView class]], @"The registered class is invalid, it must be a subclass of UIView.");
+    self.quickResponseViewClass = aClass;
+}
+
 
 #pragma mark - UITextViewDelegate Methods
 
@@ -2258,19 +2328,22 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     NSDictionary *views = @{@"scrollView": self.scrollViewProxy,
                             @"autoCompletionView": self.autoCompletionView,
                             @"typingIndicatorView": self.typingIndicatorProxyView,
+                            @"quickResponseView":self.quickResponseProxyView,
                             @"textInputbar": self.textInputbar
                             };
     
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[scrollView(0@750)][typingIndicatorView(0)]-0@999-[textInputbar(0)]|" options:0 metrics:nil views:views]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[autoCompletionView(0@750)][typingIndicatorView]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[scrollView(0@750)][typingIndicatorView(0)][quickResponseView(0)]-0@999-[textInputbar(0)]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(>=0)-[autoCompletionView(0@750)][typingIndicatorView][quickResponseView]" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[scrollView]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[autoCompletionView]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[typingIndicatorView]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[quickResponseView]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[textInputbar]|" options:0 metrics:nil views:views]];
     
     self.scrollViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.scrollViewProxy secondItem:nil];
     self.autoCompletionViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.autoCompletionView secondItem:nil];
     self.typingIndicatorViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.typingIndicatorProxyView secondItem:nil];
+    self.quickResponseViewHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.quickResponseProxyView secondItem:nil];
     self.textInputbarHC = [self.view slk_constraintForAttribute:NSLayoutAttributeHeight firstItem:self.textInputbar secondItem:nil];
     self.keyboardHC = [self.view slk_constraintForAttribute:NSLayoutAttributeBottom firstItem:self.view secondItem:self.textInputbar];
     
@@ -2446,6 +2519,7 @@ CGFloat const SLKAutoCompletionViewDefaultHeight = 140.0;
     [self slk_unregisterNotifications];
     
     [_typingIndicatorProxyView removeObserver:self forKeyPath:@"visible"];
+    [_quickResponseProxyView removeObserver:self forKeyPath:@"visible"];
 }
 
 @end
